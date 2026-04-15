@@ -30,18 +30,25 @@ final class MtlsHttpClient
     ) {
         $this->httpClient = $httpClient ?? new Client();
 
-        $sslKeyOption = $clientPrivateKeyPath;
-        if ($clientPrivateKeyPassphrase !== null && $clientPrivateKeyPassphrase !== '') {
-            $sslKeyOption = [$clientPrivateKeyPath, $clientPrivateKeyPassphrase];
+        $hasPassphrase = $clientPrivateKeyPassphrase !== null && $clientPrivateKeyPassphrase !== '';
+
+        $certOption = $clientCertificatePath;
+        if ($hasPassphrase) {
+            $certOption = [$clientCertificatePath, $clientPrivateKeyPassphrase];
         }
 
         $this->baseOptions = [
-            'cert' => $clientCertificatePath,
-            'ssl_key' => $sslKeyOption,
+            'cert' => $certOption,
             'verify' => $verifyTls,
             'timeout' => $timeout,
             'http_errors' => false,
         ];
+
+        if ($this->shouldUseSeparateSslKey($clientCertificatePath, $clientPrivateKeyPath)) {
+            $this->baseOptions['ssl_key'] = $hasPassphrase
+                ? [$clientPrivateKeyPath, $clientPrivateKeyPassphrase]
+                : $clientPrivateKeyPath;
+        }
     }
 
     /**
@@ -81,5 +88,26 @@ final class MtlsHttpClient
     private function isSuccessfulStatusCode(int $statusCode): bool
     {
         return $statusCode >= self::SUCCESS_STATUS_MIN && $statusCode <= self::SUCCESS_STATUS_MAX;
+    }
+
+    private function shouldUseSeparateSslKey(string $clientCertificatePath, string $clientPrivateKeyPath): bool
+    {
+        $trimmedKeyPath = trim($clientPrivateKeyPath);
+        if ($trimmedKeyPath === '') {
+            return false;
+        }
+
+        $trimmedCertificatePath = trim($clientCertificatePath);
+        if ($trimmedCertificatePath === $trimmedKeyPath) {
+            return false;
+        }
+
+        $resolvedCertificatePath = realpath($trimmedCertificatePath);
+        $resolvedKeyPath = realpath($trimmedKeyPath);
+        if ($resolvedCertificatePath !== false && $resolvedKeyPath !== false && $resolvedCertificatePath === $resolvedKeyPath) {
+            return false;
+        }
+
+        return true;
     }
 }

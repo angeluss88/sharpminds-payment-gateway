@@ -25,7 +25,7 @@ final class EnvConfig
         $this->apiUrl = $this->requireUrl($values, 'PAYMENT_API_URL');
         $this->hmacSecret = $this->requireNonEmptyString($values, 'PAYMENT_HMAC_SECRET');
         $this->clientCertificatePath = $this->requireNonEmptyString($values, 'PAYMENT_CLIENT_CERT');
-        $this->clientPrivateKeyPath = $this->requireNonEmptyString($values, 'PAYMENT_CLIENT_KEY');
+        $this->clientPrivateKeyPath = $this->optionalString($values, 'PAYMENT_CLIENT_KEY') ?? '';
         $this->clientPrivateKeyPassphrase = $this->optionalString($values, 'PAYMENT_CLIENT_KEY_PASSPHRASE');
         $this->verifyTls = $this->requireBool($values, 'PAYMENT_VERIFY_TLS');
         $this->timeout = $this->optionalPositiveFloat($values, 'PAYMENT_TIMEOUT', 10.0);
