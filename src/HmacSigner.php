@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Mrudchenko\PaymentMtlsClient;
 
-use InvalidArgumentException;
-
 final class HmacSigner
 {
     /**
@@ -20,39 +18,20 @@ final class HmacSigner
      */
     public function sign(array $payload, string $secret): string
     {
-        $this->assertOneDimensional($payload);
-
-        $normalized = $payload;
-        ksort($normalized);
-
-        $canonicalPayload = http_build_query($normalized, '', '&', PHP_QUERY_RFC3986);
+        $canonicalPayload = $this->canonicalize($payload);
 
         return hash_hmac('sha256', $canonicalPayload, $secret);
     }
 
     /**
-     * @param array<int|string, mixed> $payload
+     * Returns canonical payload representation used for HMAC signing.
+     *
+     * Null values are omitted from canonical output.
+     *
+     * @param array<int|string, scalar|null> $payload
      */
-    private function assertOneDimensional(array $payload): void
+    public function canonicalize(array $payload): string
     {
-        foreach ($payload as $key => $value) {
-            if (is_array($value)) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Payload must be one-dimensional. Nested array found at key "%s".',
-                        (string) $key
-                    )
-                );
-            }
-
-            if (!is_scalar($value) && $value !== null) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        "Payload values must be scalar or null. Invalid value found at key '%s'.",
-                        (string) $key
-                    )
-                );
-            }
-        }
+        return PayloadCanonicalizer::toQueryString($payload);
     }
 }

@@ -57,8 +57,10 @@ final class MtlsHttpClient
      */
     public function get(string $url, array $payload, string $signature): ResponseInterface
     {
+        $canonicalQuery = PayloadCanonicalizer::toQueryString($payload);
+
         $options = $this->baseOptions;
-        $options['query'] = $payload;
+        $options['query'] = $canonicalQuery;
         $options['headers'] = [
             'X-Signature' => $signature,
         ];

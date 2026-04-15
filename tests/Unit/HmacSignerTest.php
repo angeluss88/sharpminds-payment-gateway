@@ -77,4 +77,17 @@ final class HmacSignerTest extends TestCase
 
         self::assertSame($expectedSignature, $actualSignature);
     }
+
+    public function testCanonicalizeSortsKeysAndOmitsNullValues(): void
+    {
+        $signer = new HmacSigner();
+
+        $canonical = $signer->canonicalize([
+            'z' => '9',
+            'null_value' => null,
+            'a' => '1',
+        ]);
+
+        self::assertSame('a=1&z=9', $canonical);
+    }
 }

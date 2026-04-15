@@ -24,7 +24,9 @@ final class MtlsHttpClientTest extends TestCase
             ->with(
                 'GET',
                 'https://example.com',
-                $this->arrayHasKey('query')
+                self::callback(static function (array $options): bool {
+                    return ($options['query'] ?? null) === 'foo=bar';
+                })
             )
             ->willReturn($response);
 
@@ -91,6 +93,7 @@ final class MtlsHttpClientTest extends TestCase
                 'https://example.com',
                 self::callback(static function (array $options): bool {
                     return $options['cert'] === ['/path/to/client.pem', 'passphrase']
+                        && $options['query'] === 'a=1&z=9'
                         && !isset($options['ssl_key'])
                         && $options['verify'] === true
                         && $options['timeout'] === 10.0
@@ -108,6 +111,14 @@ final class MtlsHttpClientTest extends TestCase
             $httpClient
         );
 
-        $client->get('https://example.com', ['foo' => 'bar'], 'dummy-signature');
+        $client->get(
+            'https://example.com',
+            [
+                'z' => '9',
+                'n' => null,
+                'a' => '1',
+            ],
+            'dummy-signature'
+        );
     }
 }
