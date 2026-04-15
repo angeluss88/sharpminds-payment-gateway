@@ -15,22 +15,24 @@ final class PaymentGatewayClientIntegrationTest extends TestCase
     {
         $projectRoot = dirname(__DIR__, 2);
         $config = $this->loadConfigOrSkip($projectRoot);
+        $certificatePath = $this->resolvePath($projectRoot, $config->getClientCertificatePath());
 
-        if (!is_file($config->getClientCertificatePath())) {
+        if (!is_file($certificatePath)) {
             self::markTestSkipped(
                 sprintf(
                     'mTLS client certificate was not found at "%s". Update your .env before running integration tests.',
-                    $config->getClientCertificatePath()
+                    $certificatePath
                 )
             );
         }
 
         $privateKeyPath = $config->getClientPrivateKeyPath();
-        if ($privateKeyPath !== '' && !is_file($privateKeyPath)) {
+        $resolvedPrivateKeyPath = $privateKeyPath !== '' ? $this->resolvePath($projectRoot, $privateKeyPath) : '';
+        if ($resolvedPrivateKeyPath !== '' && !is_file($resolvedPrivateKeyPath)) {
             self::markTestSkipped(
                 sprintf(
                     'mTLS client private key was not found at "%s". Update your .env before running integration tests.',
-                    $privateKeyPath
+                    $resolvedPrivateKeyPath
                 )
             );
         }
@@ -62,5 +64,18 @@ final class PaymentGatewayClientIntegrationTest extends TestCase
                 )
             );
         }
+    }
+
+    private function resolvePath(string $projectRoot, string $path): string
+    {
+        if ($path === '') {
+            return '';
+        }
+
+        if (str_starts_with($path, DIRECTORY_SEPARATOR)) {
+            return $path;
+        }
+
+        return rtrim($projectRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
     }
 }

@@ -58,4 +58,23 @@ final class HmacSignerTest extends TestCase
         $signer = new HmacSigner();
         $signer->sign(['foo' => new stdClass()], $secret);
     }
+
+    public function testSignAcceptsNullPayloadValueAndOmitsItFromCanonicalPayload(): void
+    {
+        $secret = 'test-secret';
+        // Canonical string when null is present: amount=100.50&currency=USD
+        $expectedSignature = '808c387cc164029976bb85d7d28bf3e5a946b7a6780d6ace6a5dd4309e4fd20c';
+
+        $signer = new HmacSigner();
+        $actualSignature = $signer->sign(
+            [
+                'amount' => '100.50',
+                'currency' => 'USD',
+                'transaction_id' => null,
+            ],
+            $secret
+        );
+
+        self::assertSame($expectedSignature, $actualSignature);
+    }
 }

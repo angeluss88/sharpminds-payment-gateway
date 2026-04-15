@@ -31,9 +31,10 @@ final class MtlsHttpClient
         $this->httpClient = $httpClient ?? new Client();
 
         $hasPassphrase = $clientPrivateKeyPassphrase !== null && $clientPrivateKeyPassphrase !== '';
+        $useSeparateSslKey = $this->shouldUseSeparateSslKey($clientCertificatePath, $clientPrivateKeyPath);
 
         $certOption = $clientCertificatePath;
-        if ($hasPassphrase) {
+        if (!$useSeparateSslKey && $hasPassphrase) {
             $certOption = [$clientCertificatePath, $clientPrivateKeyPassphrase];
         }
 
@@ -44,7 +45,7 @@ final class MtlsHttpClient
             'http_errors' => false,
         ];
 
-        if ($this->shouldUseSeparateSslKey($clientCertificatePath, $clientPrivateKeyPath)) {
+        if ($useSeparateSslKey) {
             $this->baseOptions['ssl_key'] = $hasPassphrase
                 ? [$clientPrivateKeyPath, $clientPrivateKeyPassphrase]
                 : $clientPrivateKeyPath;

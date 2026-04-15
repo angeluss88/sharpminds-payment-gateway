@@ -20,7 +20,7 @@ composer install
 
 Create a `.env` file in the project root and define:
 
-- `PAYMENT_API_URL` - target API endpoint URL
+- `PAYMENT_API_URL` - target API endpoint URL (used by integration tests and any code that reads endpoint from config)
 - `PAYMENT_HMAC_SECRET` - shared secret used for HMAC signature
 - `PAYMENT_CLIENT_CERT` - path to client certificate PEM
 - `PAYMENT_CLIENT_KEY` - path to private key PEM (optional in combined-PEM mode)
