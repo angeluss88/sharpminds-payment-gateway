@@ -5,6 +5,24 @@
 `payment-mtls-client` is a small Composer package for sending signed GET requests over mTLS.  
 It signs payloads with HMAC SHA-256 and sends them as query parameters in a GET request using a client certificate/private key while validating the server certificate.
 
+## Quick start for reviewer
+
+1. Clone the repository
+2. Run `composer install`
+3. Copy `.env.example` to `.env`
+4. Download the BadSSL client PEM from https://badssl.com/download/
+5. Update certificate path and passphrase in `.env`
+6. Run `composer test`
+
+
+## Practical note:
+
+If you use the BadSSL combined PEM file, leave `PAYMENT_CLIENT_KEY` empty and set:
+
+```dotenv
+PAYMENT_CLIENT_KEY_PASSPHRASE=badssl.com
+```
+
 ## Requirements
 
 - PHP `^8.2`
