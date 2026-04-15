@@ -1,0 +1,41 @@
+# Composer dependencies
+/vendor/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Certificates / secrets
+certs/
+*.pem
+*.crt
+*.key
+
+# PHPUnit
+/phpunit.result.cache
+
+# IDE
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage reports
+/coverage/
+/build/
+
+# Cache / temp
+/tmp/
+/cache/
+
+# Misc
+*.bak
+*.old
